@@ -23,16 +23,62 @@ LinkedInの投稿コンテンツを自動生成し、スケジュール投稿で
 - 一括スケジュール投稿
 - スケジュール管理（追加・削除・一覧表示）
 
-## セットアップ
+### 4. OAuth 2.0認証
+- インタラクティブな認証フロー
+- トークンの自動リフレッシュ
+- 安全な認証情報管理
+
+### 5. CLIツール
+- コマンドラインから簡単に投稿
+- スケジュール管理
+- 設定ガイド
+
+## クイックスタート
+
+### 1. OAuth認証（推奨）
+
+```bash
+# Client IDとSecretを環境変数に設定
+export LINKEDIN_CLIENT_ID="your_client_id"
+export LINKEDIN_CLIENT_SECRET="your_client_secret"
+
+# OAuth認証を実行
+swift run auth
+```
+
+ブラウザで認証を完了すると、自動的にトークンと著者IDが設定されます。
+
+### 2. すぐに投稿
+
+```bash
+# 技術Tipを投稿
+swift run post -t "Swiftの新機能について学びました" -template techTip
+
+# 成果報告を投稿
+swift run post -t "新しいアプリをリリースしました" -template achievement
+```
+
+### 3. スケジュール投稿
+
+```bash
+# 24時間後に投稿
+swift run schedule -t "週末の振り返り" -date 24
+```
+
+## 詳細セットアップ
 
 ### 1. LinkedIn API認証情報の取得
 
 1. [LinkedIn Developers](https://www.linkedin.com/developers/) にアクセス
 2. アプリケーションを作成
-3. OAuth 2.0でアクセストークンを取得
-4. 以下の権限を有効化:
+3. 以下の製品を追加:
+   - **Share on LinkedIn** (投稿作成用)
+   - **Sign In with LinkedIn** (認証用)
+4. 必要な権限:
    - `w_member_social` (投稿作成用)
    - `r_liteprofile` (プロフィール読み取り用)
+
+詳細な手順は [`docs/REQUIRED_INFO.md`](docs/REQUIRED_INFO.md) を参照してください。
 
 ### 2. 環境変数の設定
 
@@ -66,7 +112,37 @@ swift run
 
 ## 使用方法
 
-### 基本的な使用例
+### CLIコマンド
+
+```bash
+# ヘルプを表示
+swift run help
+
+# OAuth認証
+swift run auth
+
+# 即座に投稿
+swift run post -t "投稿内容" -template techTip
+
+# カスタムハッシュタグで投稿
+swift run post -t "新機能リリース" -hashtags "#Release,#Update,#New"
+
+# スケジュール投稿（24時間後）
+swift run schedule -t "週末の振り返り" -date 24
+
+# セットアップガイドを表示
+swift run setup
+```
+
+利用可能なテンプレート:
+- `techTip` - 技術Tip
+- `achievement` - 成果報告
+- `industryInsight` - 業界インサイト
+- `personalGrowth` - 個人の成長
+- `teamCelebration` - チームの成功
+- `productUpdate` - 製品アップデート
+
+### プログラムでの使用
 
 ```swift
 import Foundation

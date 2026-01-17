@@ -2,6 +2,17 @@ import Foundation
 
 // MARK: - Main Entry Point
 
+// コマンドライン引数を取得
+let arguments = CommandLine.arguments
+
+// CLIモードかデモモードかを判定
+if arguments.count > 1 {
+    // CLIモード
+    await CLI.run(arguments: arguments)
+    exit(0)
+}
+
+// デモモード
 print("""
 ╔═══════════════════════════════════════════════════════╗
 ║     LinkedIn 自動投稿ツール                          ║
@@ -20,16 +31,19 @@ guard config.isConfigured(),
       let authorId = config.getAuthorId() else {
     print("""
 
-    ⚠️  設定が不完全です。以下の環境変数を設定してください:
+    ⚠️  設定が不完全です。以下のいずれかの方法でセットアップしてください:
 
+    【方法1】OAuth認証を使用（推奨）:
+    swift run auth
+
+    【方法2】環境変数を手動設定:
     export LINKEDIN_ACCESS_TOKEN="your_access_token"
     export LINKEDIN_AUTHOR_ID="your_author_id"
 
-    LinkedIn APIアクセストークンの取得方法:
-    1. LinkedIn Developers (https://www.linkedin.com/developers/) にアクセス
-    2. アプリケーションを作成
-    3. OAuth 2.0を使用してアクセストークンを取得
-    4. 著者ID (Person URN) を取得
+    【方法3】セットアップガイドを表示:
+    swift run setup
+
+    詳細: README.md または docs/API_SETUP.md を参照
 
     """)
     exit(1)
