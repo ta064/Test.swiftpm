@@ -1,9 +1,10 @@
 /* ============================================================
    AgentTask — Main JavaScript
-   Navigation, animations, interactions
+   Navigation, animations, interactions, i18n
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+  initLangSwitch();
   initNav();
   initScrollAnimations();
   initEndpointToggles();
@@ -12,7 +13,30 @@ document.addEventListener('DOMContentLoaded', () => {
   initFormValidation();
   initCopyButtons();
   initTerminalTyping();
+  initContactForm();
+  animateCounters();
 });
+
+/* ---------- Language Switcher ---------- */
+function initLangSwitch() {
+  const saved = localStorage.getItem('agenttask-lang') || 'ja';
+  setLang(saved);
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setLang(btn.dataset.lang);
+    });
+  });
+}
+
+function setLang(lang) {
+  document.documentElement.lang = lang;
+  localStorage.setItem('agenttask-lang', lang);
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+}
 
 /* ---------- Navigation scroll effect ---------- */
 function initNav() {
@@ -105,50 +129,65 @@ function initMobileMenu() {
 
   toggle.addEventListener('click', () => {
     links.classList.toggle('open');
-    toggle.textContent = links.classList.contains('open') ? '✕' : '☰';
+    toggle.textContent = links.classList.contains('open') ? '\u2715' : '\u2630';
   });
 
   links.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       links.classList.remove('open');
-      toggle.textContent = '☰';
+      toggle.textContent = '\u2630';
     });
   });
 }
 
 /* ---------- Form validation ---------- */
 function initFormValidation() {
-  const form = document.querySelector('.register-form');
-  if (!form) return;
+  const forms = document.querySelectorAll('.register-form, .contact-form');
+  forms.forEach(form => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
+      const requiredFields = form.querySelectorAll('[required]');
+      let valid = true;
 
-    const requiredFields = form.querySelectorAll('[required]');
-    let valid = true;
+      requiredFields.forEach(field => {
+        field.style.borderColor = '';
+        if (!field.value.trim()) {
+          field.style.borderColor = 'var(--accent-pink)';
+          valid = false;
+        }
+      });
 
-    requiredFields.forEach(field => {
-      field.style.borderColor = '';
-      if (!field.value.trim()) {
-        field.style.borderColor = 'var(--accent-pink)';
-        valid = false;
+      if (valid) {
+        const btn = form.querySelector('.btn-primary');
+        const lang = document.documentElement.lang;
+        const originalText = btn.textContent;
+        btn.textContent = lang === 'ja' ? '\u9001\u4fe1\u5b8c\u4e86\uff01' : 'Sent!';
+        btn.style.background = 'var(--accent-green)';
+        btn.disabled = true;
+
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = '';
+          btn.disabled = false;
+          form.reset();
+          // Reset contact type selection
+          document.querySelectorAll('.contact-type-card').forEach(c => c.classList.remove('selected'));
+        }, 3000);
       }
     });
+  });
+}
 
-    if (valid) {
-      const btn = form.querySelector('.btn-primary');
-      const originalText = btn.textContent;
-      btn.textContent = 'Registered!';
-      btn.style.background = 'var(--accent-green)';
-      btn.disabled = true;
-
-      setTimeout(() => {
-        btn.textContent = originalText;
-        btn.style.background = '';
-        btn.disabled = false;
-        form.reset();
-      }, 3000);
-    }
+/* ---------- Contact form type selection ---------- */
+function initContactForm() {
+  document.querySelectorAll('.contact-type-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.contact-type-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+    });
   });
 }
 
@@ -244,5 +283,3 @@ function animateCounters() {
     observer.observe(counter);
   });
 }
-
-animateCounters();
